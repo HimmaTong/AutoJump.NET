@@ -51,7 +51,7 @@ Public Class Form1
         PressByInfo(CurrentTapInfo)
     End Sub
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        Timer1.Interval = 5000
+        Timer1.Interval = 4000
         Timer1.Enabled = Not Timer1.Enabled
         Button2.Enabled = Not Timer1.Enabled
         Button3.Enabled = Not Timer1.Enabled

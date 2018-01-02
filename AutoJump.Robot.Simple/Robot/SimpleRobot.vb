@@ -83,9 +83,15 @@ Public Class SimpleRobot
             Dim center2 = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
             Console.WriteLine($"cluster2:{cluster2.Vertices.Count}")
 
+            If Math.Abs(center1.X - center2.X) < 20 Then
+                Throw New Exception
+            End If
+
+
+
             '绘制聚类
-            DrawCluster(image, Pens.Blue, cluster1)
-            DrawCluster(image, Pens.Green, cluster2)
+            DrawCluster(image, Pens.Red, cluster1)
+            'DrawCluster(image, Pens.Green, cluster2)
             '绘制小人与目标落点的连线
             pg.DrawLine(Pens.Red, center1.X, center1.Y, center2.X, center2.Y)
             '绘制聚类矩形框
@@ -120,6 +126,10 @@ Public Class SimpleRobot
         Dim height = image.Height
 
 
+        Dim targetsCount As Integer = 4
+        Dim targetsOfBox As New List(Of Color)
+
+
         '落点的顶部位置
         Dim TopOfTargetBox As Vertex
         '角色的顶部位置
@@ -144,10 +154,14 @@ Public Class SimpleRobot
                     End If
                     If ColorHelper.CompareBaseRGB(current, image.GetPixel(i, j - 1), 10) = False Then
                         If ColorHelper.CompareBaseRGB(current, image.GetPixel(i - 1, j), 10) = False Then
-                            If ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j), 20) = False AndAlso
+                            If ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j), 10) = False AndAlso
                                 ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 1), 20) = False AndAlso
-                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 3), 20) = False Then
+                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 3), 30) = False Then
                                 TopOfTargetBox = New Vertex(New Vector2(i, j + 3), image.GetPixel(i, j + 3))
+
+                                For k = 0 To targetsCount - 1
+                                    targetsOfBox.Add(image.GetPixel(i, j + 3 + 8 * k))
+                                Next
                                 over1 = True
                                 If isAvoidHead Then
                                     over2 = True
@@ -189,14 +203,21 @@ Public Class SimpleRobot
         Dim uponX1 = TopOfTargetBox.Position.X + width * PercentTargetBoxWidth / 2
         Dim uponX2 = TopOfCharacter.Position.X + width * PercentCharacterWidth / 2
 
+        uponX1 = If(uponX1 > uponX, uponX, uponX1)
+        uponX2 = If(uponX2 > uponX, uponX, uponX2)
+
+
+
+
         '生成聚类
-        Dim cluster1 = GetCluster(image, TopOfTargetBox.Color, lowX1, uponX1, lowY1, uponY1, 6)
+        'Dim cluster1 = GetCluster(image, TopOfTargetBox.Color, lowX1, uponX1, lowY1, uponY1, 6)
+        Dim cluster1 = GetCluster(image, targetsOfBox.ToArray, lowX1, uponX1, lowY1, uponY1, 3)
         Dim cluster2 = GetCluster(image, TopOfCharacter.Color, lowX2, uponX2, lowY2, uponY2, 35)
 
         '移除盒子聚类中属于角色底部附近的点
-        Dim bottom = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
-        Dim radius = height * PercentCharacterHeight * 0.6
-        cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - bottom).Length < radius)
+        'Dim bottom = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
+        'Dim radius = height * PercentCharacterHeight * 0.6
+        'cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - bottom).Length < radius)
 
         Return New Tuple(Of Cluster, Cluster)(cluster1, cluster2)
     End Function
@@ -212,6 +233,25 @@ Public Class SimpleRobot
                 If ColorHelper.CompareBaseRGB(current, target, distance) Then
                     result.Vertices.Add(New Vertex(New Vector2(i, j), current))
                 End If
+            Next
+        Next
+        Return result
+    End Function
+
+    ''' <summary>
+    ''' 返回指定区域内与指定颜色集合相似的聚类
+    ''' </summary>
+    Private Function GetCluster(image As Bitmap, targets As Color(), lowerX As Integer, uponX As Integer, lowerY As Integer, uponY As Integer, Optional distance As Integer = 20) As Cluster
+        Dim result As New Cluster
+        For j = lowerY To uponY
+            For i = lowerX To uponX
+                Dim current As Color = image.GetPixel(i, j)
+                For k = 0 To targets.Length - 1
+                    If ColorHelper.CompareBaseRGB(current, targets(k), distance) Then
+                        result.Vertices.Add(New Vertex(New Vector2(i, j), current))
+                        Exit For
+                    End If
+                Next
             Next
         Next
         Return result
