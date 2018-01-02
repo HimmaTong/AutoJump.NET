@@ -25,7 +25,7 @@ Public Class SimpleRobot
     ''' <summary>
     ''' 角色中心偏移百分比（由中心偏移到底部）
     ''' </summary>
-    Const PercentCharacterOffset As Single = 1.3 / 32
+    Const PercentCharacterOffset As Single = 1.4 / 32
 
     ''' <summary>
     ''' 盒子扫描高度百分比
@@ -35,6 +35,15 @@ Public Class SimpleRobot
     ''' 角色扫描高度百分比
     ''' </summary>
     Const PercentCharacterHeight As Single = 0.109
+
+    ''' <summary>
+    ''' 盒子扫描宽度百分比
+    ''' </summary>
+    Const PercentTargetBoxWidth As Single = 0.42
+    ''' <summary>
+    ''' 角色扫描宽度百分比
+    ''' </summary>
+    Const PercentCharacterWidth As Single = 0.075
 
     ''' <summary>
     ''' 跳跃系数
@@ -119,28 +128,34 @@ Public Class SimpleRobot
         Dim over1 As Boolean
         Dim over2 As Boolean
 
-        '当扫描行跳过角色头部时，该值记录头部的Y位置
-        Dim avoid As Single = -1
+        '扫描行跳过角色头部
+        Dim isAvoidHead As Boolean = False
+        Dim avoidCenter As Vector2
 
         For j = offsetY To uponY
             For i = offsetX To uponX
                 Dim current = image.GetPixel(i, j)
                 If Not over1 Then
                     '搜索落点顶端像素
+                    If isAvoidHead Then
+                        If (avoidCenter - New Vector2(i, j)).Length < width * 0.05 Then
+                            Continue For
+                        End If
+                    End If
                     If ColorHelper.CompareBaseRGB(current, image.GetPixel(i, j - 1), 10) = False Then
                         If ColorHelper.CompareBaseRGB(current, image.GetPixel(i - 1, j), 10) = False Then
-                            If ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j), 30) = False AndAlso
-                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 1), 30) = False AndAlso
-                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 3), 30) = False Then
+                            If ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j), 20) = False AndAlso
+                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 1), 20) = False AndAlso
+                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 3), 20) = False Then
                                 TopOfTargetBox = New Vertex(New Vector2(i, j + 3), image.GetPixel(i, j + 3))
                                 over1 = True
-                                If avoid > 0 Then
-                                    j = avoid
+                                If isAvoidHead Then
+                                    over2 = True
                                 End If
                             Else
-                                avoid = j
-                                i += width * 0.055
-                                j += width * 0.055
+                                isAvoidHead = True
+                                avoidCenter = New Vector2(i, j) + New Vector2(0, width * 0.027)
+                                TopOfCharacter = New Vertex(New Vector2(i, j), current)
                             End If
                         End If
                     End If
@@ -157,22 +172,31 @@ Public Class SimpleRobot
             Next
         Next
 
-        Dim upon1 = TopOfTargetBox.Position.Y + height * PercentTargetBoxHeight
-        Dim upon2 = TopOfCharacter.Position.Y + height * PercentCharacterHeight
+        Dim lowY1 = TopOfTargetBox.Position.Y
+        Dim lowY2 = TopOfCharacter.Position.Y
 
-        upon1 = If(upon1 > uponY, uponY, upon1)
-        upon2 = If(upon2 > uponY, uponY, upon2)
+        Dim uponY1 = TopOfTargetBox.Position.Y + height * PercentTargetBoxHeight
+        Dim uponY2 = TopOfCharacter.Position.Y + height * PercentCharacterHeight
 
-        If upon1 > upon2 Then upon1 = upon2
+        uponY1 = If(uponY1 > uponY, uponY, uponY1)
+        uponY2 = If(uponY2 > uponY, uponY, uponY2)
+        If uponY1 > uponY2 Then uponY1 = uponY2
+
+
+        Dim lowX1 = TopOfTargetBox.Position.X - width * PercentTargetBoxWidth / 2
+        Dim lowX2 = TopOfCharacter.Position.X - width * PercentCharacterWidth / 2
+
+        Dim uponX1 = TopOfTargetBox.Position.X + width * PercentTargetBoxWidth / 2
+        Dim uponX2 = TopOfCharacter.Position.X + width * PercentCharacterWidth / 2
 
         '生成聚类
-        Dim cluster1 = GetCluster(image, TopOfTargetBox.Color, 0, uponX, TopOfTargetBox.Position.Y, upon1, 15)
-        Dim cluster2 = GetCluster(image, TopOfCharacter.Color, 0, uponX, TopOfCharacter.Position.Y, upon2, 20)
+        Dim cluster1 = GetCluster(image, TopOfTargetBox.Color, lowX1, uponX1, lowY1, uponY1, 6)
+        Dim cluster2 = GetCluster(image, TopOfCharacter.Color, lowX2, uponX2, lowY2, uponY2, 35)
 
-        '移除盒子聚类中属于角色附近的点
-        Dim center = cluster2.GetCenter()
-        Dim radius = height * PercentCharacterHeight * 0.8
-        cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - center).Length < radius)
+        '移除盒子聚类中属于角色底部附近的点
+        Dim bottom = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
+        Dim radius = height * PercentCharacterHeight * 0.6
+        cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - bottom).Length < radius)
 
         Return New Tuple(Of Cluster, Cluster)(cluster1, cluster2)
     End Function
