@@ -32,7 +32,15 @@ Public Class Form1
         ElseIf e.Button = MouseButtons.Right Then
             Target = New Vector2(e.Location.X, e.Location.Y)
             Console.WriteLine(Target)
-            PressByPositionPair(Start, Target)
+            'PictureBox宽高比
+            Dim aspect1 = PictureBox1.Width / PictureBox1.Height
+            '设备的宽高比
+            Dim aspect2 = GameManager.Device.Size.Width / GameManager.Device.Size.Height
+            If aspect1 > aspect2 Then
+                PressByPositionPair(Start, Target, 2560 / PictureBox1.Height)
+            Else
+                PressByPositionPair(Start, Target, 1440 / PictureBox1.Width)
+            End If
         End If
     End Sub
     'Button事件处理程序
@@ -68,9 +76,9 @@ Public Class Form1
     ''' <summary>
     ''' 由指定的起始点和终止点触压屏幕
     ''' </summary>
-    Private Sub PressByPositionPair(start As Vector2, target As Vector2)
+    Private Sub PressByPositionPair(start As Vector2, target As Vector2, Optional ratio As Single = 1.0F)
         Dim distance As Single = (target - start).Length
-        Dim duration As Integer = CInt(distance * 4)
+        Dim duration As Integer = CInt(distance * ratio)
         GameManager.Device.Press(New Vector2(100, 100), duration)
         Console.WriteLine($"两点距离：{distance}，触压时间：{duration}")
     End Sub

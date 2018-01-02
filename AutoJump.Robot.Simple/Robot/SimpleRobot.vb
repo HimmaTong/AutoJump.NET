@@ -39,11 +39,17 @@ Public Class SimpleRobot
     ''' <summary>
     ''' 跳跃系数
     ''' </summary>
+    <Obsolete("这个比例系数已被弃用,改为自动计算", True)>
     Const PercentDistance As Single = 2
+
+    ''' <summary>
+    ''' 用于自动计算跳跃系数的高度（以像素为单位）
+    ''' </summary>
+    Const ReferenceHeight As Integer = 2560
 
     Public Function GetNextTap(image As Bitmap) As TapInformation Implements IGameRobot.GetNextTap
         Dim pair As PositionPair = Solve(image)
-        Return New TapInformation(New Vector2(100, 100), pair.Distance * PercentDistance)
+        Return New TapInformation(New Vector2(100, 100), pair.Distance * ReferenceHeight / image.Height)
     End Function
 
     Private Function Solve(image As Bitmap) As PositionPair

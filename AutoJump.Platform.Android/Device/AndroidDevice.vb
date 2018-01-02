@@ -11,10 +11,17 @@ Public Class AndroidDevice
             Return CheckConnection()
         End Get
     End Property
+    Public ReadOnly Property Size As Size Implements IDevice.Size
+        Get
+            Return m_Size
+        End Get
+    End Property
     ''' <summary>
     ''' Adb路径
     ''' </summary>
     Public Property AdbPath As String
+
+    Private m_Size As Size
 
     ''' <summary>
     ''' 创建并初始化一个实例
@@ -44,6 +51,7 @@ Public Class AndroidDevice
                 End Try
             End If
         End If
+        m_Size = result.Size
         Return result
     End Function
 

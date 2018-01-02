@@ -9,6 +9,10 @@ Public Interface IDevice
     ''' </summary>
     ReadOnly Property Availiable As Boolean
     ''' <summary>
+    ''' 获取此设备的屏幕大小（以像素为单位）
+    ''' </summary>
+    ReadOnly Property Size As Size
+    ''' <summary>
     ''' 按压
     ''' </summary>
     Sub Press(position As Vector2, millionseconds As Integer)

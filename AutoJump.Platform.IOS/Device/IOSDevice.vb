@@ -6,8 +6,12 @@ Imports AutoJump.Core
 ''' </summary>
 Public Class IOSDevice
     Implements IDevice
-
     Public ReadOnly Property Availiable As Boolean Implements IDevice.Availiable
+        Get
+            Throw New NotImplementedException()
+        End Get
+    End Property
+    Public ReadOnly Property Size As Size Implements IDevice.Size
         Get
             Throw New NotImplementedException()
         End Get
