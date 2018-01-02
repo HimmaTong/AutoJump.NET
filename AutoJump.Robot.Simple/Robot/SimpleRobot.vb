@@ -6,17 +6,39 @@ Imports AutoJump.Core
 ''' </summary>
 Public Class SimpleRobot
     Implements IGameRobot
-
+    ''' <summary>
+    ''' 识别区域横向偏移百分比
+    ''' </summary>
     Const PercentOffsetX As Single = 1 / 30
+    ''' <summary>
+    ''' 识别区域纵向偏移百分比
+    ''' </summary>
     Const PercentOffsetY As Single = 1 / 3
-
+    ''' <summary>
+    ''' 识别区域横向上限百分比
+    ''' </summary>
     Const PercentUponX As Single = 29 / 30
+    ''' <summary>
+    ''' 识别区域纵向上限百分比
+    ''' </summary>
     Const PercentUponY As Single = 2 / 3
+    ''' <summary>
+    ''' 角色中心偏移百分比（由中心偏移到底部）
+    ''' </summary>
+    Const PercentCharacterOffset As Single = 1.3 / 32
 
-    Const PercentCharacter As Single = 1.2 / 32
+    ''' <summary>
+    ''' 盒子扫描高度百分比
+    ''' </summary>
+    Const PercentTargetBoxHeight As Single = 0.13
+    ''' <summary>
+    ''' 角色扫描高度百分比
+    ''' </summary>
+    Const PercentCharacterHeight As Single = 0.109
 
-    Const PercentFlagOffset As Single = 1 / 5
-
+    ''' <summary>
+    ''' 跳跃系数
+    ''' </summary>
     Const PercentDistance As Single = 2
 
     Public Function GetNextTap(image As Bitmap) As TapInformation Implements IGameRobot.GetNextTap
@@ -41,9 +63,9 @@ Public Class SimpleRobot
 
             '聚类中心(目标落点）
             Dim center1 = cluster1.GetCenter()
-            Console.WriteLine($"cluster:{cluster1.Vertices.Count}")
+            Console.WriteLine($"cluster1:{cluster1.Vertices.Count}")
             '聚类中心(小人位置）
-            Dim center2 = cluster2.GetCenter() + New Vector2(0, height * PercentCharacter)
+            Dim center2 = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
             Console.WriteLine($"cluster2:{cluster2.Vertices.Count}")
 
             '绘制聚类
@@ -75,16 +97,25 @@ Public Class SimpleRobot
     ''' 返回图像指定区域的聚类集合识别结果
     ''' </summary>
     Private Function GenerateClusters(image As Bitmap, offsetX As Integer, offsetY As Integer, uponX As Integer, uponY As Integer) As Tuple(Of Cluster, Cluster)
+
+        '角色顶部颜色
         Dim characterColor = Color.FromArgb(255, 54, 57, 100)
 
         Dim width = image.Width
         Dim height = image.Height
 
-        Dim flag1 As New Vector2
-        Dim flag2 As New Vector2
+
+        '落点的顶部位置
+        Dim TopOfTargetBox As Vertex
+        '角色的顶部位置
+        Dim TopOfCharacter As Vertex
 
         Dim over1 As Boolean
         Dim over2 As Boolean
+
+        '当扫描行跳过角色头部时，该值记录头部的Y位置
+        Dim avoid As Single = -1
+
         For j = offsetY To uponY
             For i = offsetX To uponX
                 Dim current = image.GetPixel(i, j)
@@ -92,14 +123,25 @@ Public Class SimpleRobot
                     '搜索落点顶端像素
                     If ColorHelper.CompareBaseRGB(current, image.GetPixel(i, j - 1), 10) = False Then
                         If ColorHelper.CompareBaseRGB(current, image.GetPixel(i - 1, j), 10) = False Then
-                            flag1 = New Vector2(i, j + 3)
-                            over1 = True
+                            If ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j), 30) = False AndAlso
+                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 1), 30) = False AndAlso
+                                ColorHelper.CompareBaseRGB(characterColor, image.GetPixel(i, j + 3), 30) = False Then
+                                TopOfTargetBox = New Vertex(New Vector2(i, j + 3), image.GetPixel(i, j + 3))
+                                over1 = True
+                                If avoid > 0 Then
+                                    j = avoid
+                                End If
+                            Else
+                                avoid = j
+                                i += width * 0.055
+                                j += width * 0.055
+                            End If
                         End If
                     End If
                 Else
                     '搜索小人顶端像素
                     If ColorHelper.CompareBaseRGB(current, characterColor, 25) = True Then
-                        flag2 = New Vector2(i, j)
+                        TopOfCharacter = New Vertex(New Vector2(i, j), current)
                         over2 = True
                     End If
                 End If
@@ -109,21 +151,22 @@ Public Class SimpleRobot
             Next
         Next
 
-        Dim c1 = image.GetPixel(flag1.X, flag1.Y)
-        Dim c2 = image.GetPixel(flag2.X, flag2.Y)
+        Dim upon1 = TopOfTargetBox.Position.Y + height * PercentTargetBoxHeight
+        Dim upon2 = TopOfCharacter.Position.Y + height * PercentCharacterHeight
 
-        Dim flagOffset = height * PercentFlagOffset
-
-        Dim upon1 = flag1.Y + flagOffset
-        Dim upon2 = flag2.Y + flagOffset
-
-        upon1 = If(upon1 > flag2.Y, flag2.Y, upon1)
-        upon1 = If(upon1 - flag1.Y < flagOffset / 2, flag1.Y + flagOffset / 2, upon1)
+        upon1 = If(upon1 > uponY, uponY, upon1)
         upon2 = If(upon2 > uponY, uponY, upon2)
 
+        If upon1 > upon2 Then upon1 = upon2
+
         '生成聚类
-        Dim cluster1 = GetCluster(image, c1, 0, uponX, flag1.Y, upon1, 15)
-        Dim cluster2 = GetCluster(image, c2, 0, uponX, flag2.Y, upon2, 20)
+        Dim cluster1 = GetCluster(image, TopOfTargetBox.Color, 0, uponX, TopOfTargetBox.Position.Y, upon1, 15)
+        Dim cluster2 = GetCluster(image, TopOfCharacter.Color, 0, uponX, TopOfCharacter.Position.Y, upon2, 20)
+
+        '移除盒子聚类中属于角色附近的点
+        Dim center = cluster2.GetCenter()
+        Dim radius = height * PercentCharacterHeight * 0.8
+        cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - center).Length < radius)
 
         Return New Tuple(Of Cluster, Cluster)(cluster1, cluster2)
     End Function
@@ -152,7 +195,7 @@ Public Class SimpleRobot
             Using pg = Graphics.FromImage(image)
                 For i = 0 To cluster.Vertices.Count - 1
                     Dim position = cluster.Vertices(i).Position
-                    pg.DrawRectangle(pen, Position.X, Position.Y, 1, 1)
+                    pg.DrawRectangle(pen, position.X, position.Y, 1, 1)
                 Next
             End Using
         End If
