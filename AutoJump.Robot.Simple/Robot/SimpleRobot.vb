@@ -48,17 +48,22 @@ Public Class SimpleRobot
     ''' <summary>
     ''' 跳跃系数
     ''' </summary>
-    <Obsolete("这个比例系数已被弃用,改为自动计算", True)>
+    <Obsolete("这个系数已被弃用,请使用PercentReferenceHeight代替", True)>
     Const PercentDistance As Single = 2
 
     ''' <summary>
     ''' 用于自动计算跳跃系数的高度（以像素为单位）
     ''' </summary>
     Const ReferenceHeight As Integer = 2560
+    ''' <summary>
+    ''' 跳跃系数
+    ''' </summary>
+    ''' <remarks>如果自动计算的实际跳跃距离在你的机型上仍不正确，请调节这个系数</remarks>
+    Const PercentReferenceHeight As Single = 1.0
 
     Public Function GetNextTap(image As Bitmap) As TapInformation Implements IGameRobot.GetNextTap
         Dim pair As PositionPair = Solve(image)
-        Return New TapInformation(New Vector2(100, 100), pair.Distance * ReferenceHeight / image.Height)
+        Return New TapInformation(New Vector2(100, 100), pair.Distance * ReferenceHeight / image.Height * PercentReferenceHeight)
     End Function
 
     Private Function Solve(image As Bitmap) As PositionPair
@@ -83,6 +88,8 @@ Public Class SimpleRobot
             Dim center2 = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
             Console.WriteLine($"cluster2:{cluster2.Vertices.Count}")
 
+
+            '识别不正确
             If Math.Abs(center1.X - center2.X) < 20 Then
                 Throw New Exception
             End If
@@ -215,9 +222,9 @@ Public Class SimpleRobot
         Dim cluster2 = GetCluster(image, TopOfCharacter.Color, lowX2, uponX2, lowY2, uponY2, 35)
 
         '移除盒子聚类中属于角色底部附近的点
-        'Dim bottom = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
-        'Dim radius = height * PercentCharacterHeight * 0.6
-        'cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - bottom).Length < radius)
+        Dim bottom = cluster2.GetCenter() + New Vector2(0, height * PercentCharacterOffset)
+        Dim radius = height * PercentCharacterHeight * 0.6
+        cluster1.Vertices.RemoveAll(Function(vertex) (vertex.Position - bottom).Length < radius)
 
         Return New Tuple(Of Cluster, Cluster)(cluster1, cluster2)
     End Function
