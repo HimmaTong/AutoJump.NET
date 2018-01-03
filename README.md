@@ -4,6 +4,10 @@ A Robot For Jump Game In Wechat
 ## Platform
 - Android
 - ~~IOS~~
+## Source
+
+- [C#](https://github.com/experdot/AutoJump.NET)
+- [VB.NET](https://github.com/experdot/AutoJump.NET/tree/secondary-vb) (secondary branch)
 
 ## Usages
 1. Connect your mobile device
