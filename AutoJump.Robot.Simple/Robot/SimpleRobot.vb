@@ -138,9 +138,9 @@ Public Class SimpleRobot
 
 
         '落点的顶部位置
-        Dim TopOfTargetBox As Vertex
+        Dim TopOfTargetBox As Vertex = Nothing
         '角色的顶部位置
-        Dim TopOfCharacter As Vertex
+        Dim TopOfCharacter As Vertex = Nothing
 
         Dim over1 As Boolean
         Dim over2 As Boolean
@@ -192,6 +192,14 @@ Public Class SimpleRobot
                 End If
             Next
         Next
+
+
+        If TopOfTargetBox Is Nothing Then
+            Throw New Exception("未检测到目标落点")
+        End If
+        If TopOfCharacter Is Nothing Then
+            Throw New Exception("未检测到游戏角色")
+        End If
 
         Dim lowY1 = TopOfTargetBox.Position.Y
         Dim lowY2 = TopOfCharacter.Position.Y
