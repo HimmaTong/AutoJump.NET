@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{410C0C91-82A0-463A-A86F-B3B3D916653D}</ProjectGuid>
+    <ProjectGuid>{6ABB3F77-0ABC-4A19-871B-A847567DA845}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AutoJump.Platform.Android</RootNamespace>
-    <AssemblyName>AutoJump.Platform.Android</AssemblyName>
+    <RootNamespace>AutoJump.Core</RootNamespace>
+    <AssemblyName>AutoJump.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -42,14 +42,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Device\AndroidDevice.cs" />
+    <Compile Include="Fundamental\PixelData\PixelData.cs" />
+    <Compile Include="Fundamental\TapInformation\TapInformation.cs" />
+    <Compile Include="Game\Device\IDevice.cs" />
+    <Compile Include="Game\GameManager.cs" />
+    <Compile Include="Game\Robot\IGameRobot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AutoJump.Core\AutoJump.Core.csproj">
-      <Project>{6ABB3F77-0ABC-4A19-871B-A847567DA845}</Project>
-      <Name>AutoJump.Core</Name>
-    </ProjectReference>
+    <Compile Include="Utilities\ColorHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

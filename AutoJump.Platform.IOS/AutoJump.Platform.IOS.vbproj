@@ -101,11 +101,5 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AutoJump.Core\AutoJump.Core.vbproj">
-      <Project>{b9637f5e-d7f7-489b-9394-3c2ee93314e4}</Project>
-      <Name>AutoJump.Core</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

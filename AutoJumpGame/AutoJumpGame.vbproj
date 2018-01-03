@@ -120,8 +120,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoJump.Core\AutoJump.Core.vbproj">
-      <Project>{B9637F5E-D7F7-489B-9394-3C2EE93314E4}</Project>
+    <ProjectReference Include="..\AutoJump.Core\AutoJump.Core.csproj">
+      <Project>{6ABB3F77-0ABC-4A19-871B-A847567DA845}</Project>
       <Name>AutoJump.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\AutoJump.Platform.Android\AutoJump.Platform.Android.csproj">
