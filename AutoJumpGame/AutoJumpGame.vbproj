@@ -124,8 +124,8 @@
       <Project>{B9637F5E-D7F7-489B-9394-3C2EE93314E4}</Project>
       <Name>AutoJump.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AutoJump.Platform.Android\AutoJump.Platform.Android.vbproj">
-      <Project>{e551e7ac-2c9d-4f8b-abb6-abd4eb7a967f}</Project>
+    <ProjectReference Include="..\AutoJump.Platform.Android\AutoJump.Platform.Android.csproj">
+      <Project>{410C0C91-82A0-463A-A86F-B3B3D916653D}</Project>
       <Name>AutoJump.Platform.Android</Name>
     </ProjectReference>
     <ProjectReference Include="..\AutoJump.Robot.Simple\AutoJump.Robot.Simple.vbproj">
