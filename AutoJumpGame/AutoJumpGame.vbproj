@@ -128,8 +128,8 @@
       <Project>{410C0C91-82A0-463A-A86F-B3B3D916653D}</Project>
       <Name>AutoJump.Platform.Android</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AutoJump.Robot.Simple\AutoJump.Robot.Simple.vbproj">
-      <Project>{0F97ED85-3A81-405B-915D-76E7D30ACC99}</Project>
+    <ProjectReference Include="..\AutoJump.Robot.Simple\AutoJump.Robot.Simple.csproj">
+      <Project>{596cba3f-0c11-413f-9550-896113886b8c}</Project>
       <Name>AutoJump.Robot.Simple</Name>
     </ProjectReference>
   </ItemGroup>
