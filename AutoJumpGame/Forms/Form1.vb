@@ -59,7 +59,7 @@ Public Class Form1
         End Try
     End Sub
     Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        Timer1.Interval = 4000
+        Timer1.Interval = 5000
         Timer1.Enabled = Not Timer1.Enabled
         Button2.Enabled = Not Timer1.Enabled
         Button3.Enabled = Not Timer1.Enabled
@@ -70,6 +70,8 @@ Public Class Form1
         Try
             GenerateTapInfo()
             PressByInfo(CurrentTapInfo)
+            '循环周期与设备分辨率相关
+            Timer1.Interval = GameManager.Device.Size.Height / 1280 * 4000
         Catch ex As Exception
             Button4_Click(sender, e)
             MsgBox(ex.Message + vbCrLf + ex.StackTrace, 0, ex.Message)
