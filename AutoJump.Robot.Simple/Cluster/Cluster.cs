@@ -23,8 +23,8 @@ namespace AutoJump.Robot.Simple
         /// </summary>
         public Vector2 GetCenter()
         {
-            var x = Vertices.Sum(v => v.Position.X) / Vertices.Count;
-            var y = Vertices.Sum(v => v.Position.Y) / Vertices.Count;
+            var x = Vertices.Average(v => v.Position.X);
+            var y = Vertices.Average(v => v.Position.Y);
             return new Vector2(x, y);
         }
 

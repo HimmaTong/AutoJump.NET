@@ -12,14 +12,27 @@ namespace AutoJump.Core
     /// </summary>
     public class PixelData
     {
-        public Color[,] Colors;
-        public int Width;
-        public int Height;
+        /// <summary>
+        /// 宽度
+        /// </summary>
+        public int Width { get; set; }
+        /// <summary>
+        /// 高度
+        /// </summary>
+        public int Height { get; set; }
+        /// <summary>
+        /// 颜色数组
+        /// </summary>
+        public Color[,] Colors { get; set; }
 
+        /// <summary>
+        /// 创建并初始化一个实例
+        /// </summary>
         public PixelData(int width, int height)
         {
-            Width = width;
-            Height = height;
+            this.Width = width;
+            this.Height = height;
+            this.Colors = new Color[width, height];
         }
         /// <summary>
         /// 从指定的颜色数组创建像素数据

@@ -21,6 +21,9 @@ namespace AutoJump.Core
         /// </summary>
         public int Duration { get; set; }
 
+        /// <summary>
+        /// 创建并初始化一个实例
+        /// </summary>
         public TapInformation(Vector2 position, int duration)
         {
             this.Position = position;
