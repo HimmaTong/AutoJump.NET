@@ -14,10 +14,23 @@ namespace AutoJump.Robot.Simple
     /// </summary>
     public class SimpleRobot : IGameRobot
     {
+        /// <summary>
+        /// 识别区域左边距
+        /// </summary>
         const float PercentOffsetX = 1 / 30f;
+        /// <summary>
+        /// 识别区域上边距
+        /// </summary>
         const float PercentOffsetY = 1 / 3f;
+        /// <summary>
+        /// 识别区域右边距（距离左边）
+        /// </summary>
         const float PercentUponX = 29 / 30f;
+        /// <summary>
+        /// 识别区域下边距（距离顶部）
+        /// </summary>
         const float PercentUponY = 2 / 3f;
+
         const float PercentCharacterOffset = 1.4f / 32f;
         const float PercentTargetBoxHeight = 0.13f;
         const float PercentCharacterHeight = 0.109f;
