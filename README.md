@@ -16,3 +16,6 @@ A Robot For Jump Game In Wechat
 4. Click "Try Tap" to control jumping once
 5. Repeat 3th and 4th steps
 6. Click "Auto:Flase" to automate repeating
+
+## License
+- [MIT](LICENSE)
